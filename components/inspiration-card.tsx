@@ -35,7 +35,10 @@ export function InspirationCard({
   showActions = true,
 }: InspirationCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
+
+  const isActive = isHovered || isMenuOpen
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't open link if clicking on the dropdown
@@ -49,8 +52,7 @@ export function InspirationCard({
     <div
       className={cn(
         'group relative cursor-pointer overflow-hidden rounded-2xl bg-card transition-all duration-300 ease-out',
-        'hover:ring-1 hover:ring-border/50',
-        isHovered && 'scale-[1.02] shadow-2xl shadow-black/30'
+        isActive && 'ring-1 ring-border/50 shadow-2xl shadow-black/30'
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -80,7 +82,7 @@ export function InspirationCard({
         <div
           className={cn(
             'absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent transition-opacity duration-300',
-            isHovered ? 'opacity-100' : 'opacity-0'
+            isActive ? 'opacity-100' : 'opacity-0'
           )}
         />
 
@@ -90,11 +92,11 @@ export function InspirationCard({
             data-dropdown
             className={cn(
               'absolute top-3 right-3 transition-all duration-300',
-              isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
+              isActive ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
             )}
             onClick={(e) => e.stopPropagation()}
           >
-            <DropdownMenu>
+            <DropdownMenu onOpenChange={setIsMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <button className="p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors">
                   <MoreHorizontal className="size-3.5 text-white/80" />
@@ -121,7 +123,7 @@ export function InspirationCard({
         <div
           className={cn(
             'absolute bottom-0 left-0 right-0 p-4 transition-all duration-300',
-            isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+            isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           )}
         >
           {/* Author info */}

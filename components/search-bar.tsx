@@ -62,7 +62,7 @@ export function SearchBar({
     <div ref={rootRef} className={cn('relative w-full max-w-2xl', className)}>
       {showPanel ? (
         <div
-          className="absolute bottom-full left-0 right-0 z-[60] mb-2 px-3 py-2.5"
+          className="absolute bottom-full left-0 right-0 z-[60] mb-2 px-3 py-1.5"
           role="listbox"
           aria-label="Tag suggestions"
         >
@@ -94,7 +94,7 @@ export function SearchBar({
         )}
         style={{
           boxShadow:
-            '0 1px 0.6px 1px rgb(255 255 255 / 0.04), inset 0 3px 1px 0 rgb(0 0 0 / 0.41), inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.11)',
+            '0 1px 0.6px 1px rgb(255 255 255 / 0.08), inset 0 3px 1px 0 rgb(0 0 0 / 0.41), inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.11)',
         }}
       >
         <Search className="absolute left-5 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground/70" />
@@ -124,9 +124,9 @@ export function SearchBar({
           <button
             type="button"
             onClick={() => onChange('')}
-            className="absolute right-5 top-1/2 z-10 -translate-y-1/2 rounded-full p-1.5 transition-colors hover:bg-muted"
+            className="group absolute right-5 top-1/2 z-10 -translate-y-1/2 rounded-full p-1.5"
           >
-            <X className="size-4 text-muted-foreground" />
+            <X className="size-4 text-muted-foreground transition-colors group-hover:text-foreground" />
           </button>
         ) : null}
       </div>

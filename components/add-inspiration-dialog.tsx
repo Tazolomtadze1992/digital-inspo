@@ -160,7 +160,13 @@ export function AddInspirationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] bg-popover border-border">
+      <DialogContent
+        className="sm:max-w-[480px] border border-border bg-popover shadow-none"
+        style={{
+          boxShadow:
+            '0 1px 0.6px 1px rgb(255 255 255 / 0.08), inset 0 3px 1px 0 rgb(0 0 0 / 0.41), inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.11)',
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="text-lg font-medium">
             {editItem ? 'Edit Inspiration' : 'Add Inspiration'}
@@ -194,7 +200,7 @@ export function AddInspirationDialog({
             <div
               className={cn(
                 'relative border-2 border-dashed rounded-xl transition-colors cursor-pointer',
-                isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground/50',
+                isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/15 hover:border-muted-foreground/50',
                 imagePreview ? 'p-0' : 'p-8'
               )}
               onDragOver={(e) => {

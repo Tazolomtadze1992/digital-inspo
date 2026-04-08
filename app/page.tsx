@@ -8,6 +8,7 @@ import { InspirationCard, type InspirationItem } from '@/components/inspiration-
 import { AddInspirationDialog } from '@/components/add-inspiration-dialog'
 import { EmptyState } from '@/components/empty-state'
 import { SearchBar } from '@/components/search-bar'
+import { Skeleton } from '@/components/ui/skeleton'
 import { supabase } from '@/lib/supabase'
 import { normalizeTags } from '@/lib/tags'
 
@@ -28,6 +29,7 @@ function logSupabaseError(
 export default function HomePage() {
   const [session, setSession] = useState<Session | null>(null)
   const [items, setItems] = useState<InspirationItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editItem, setEditItem] = useState<InspirationItem | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -49,31 +51,43 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
+    let cancelled = false
+
     const loadInspirations = async () => {
-      const { data, error } = await supabase
-        .from('inspirations')
-        .select('*')
-        .order('created_at', { ascending: false })
+      setIsLoading(true)
+      try {
+        const { data, error } = await supabase
+          .from('inspirations')
+          .select('*')
+          .order('created_at', { ascending: false })
 
-      if (error) {
-        logSupabaseError('load inspirations', error)
-        return
-      }
+        if (cancelled) return
 
-      if (data) {
-        const mappedItems: InspirationItem[] = data.map((row) => ({
-          id: String(row.id),
-          url: row.url as string,
-          imageUrl: row.image_url as string,
-          author: row.author as string,
-          authorHandle: row.author_handle as string,
-          tags: normalizeTags(row.tags),
-        }))
-        setItems(mappedItems)
+        if (error) {
+          logSupabaseError('load inspirations', error)
+          return
+        }
+
+        if (data) {
+          const mappedItems: InspirationItem[] = data.map((row) => ({
+            id: String(row.id),
+            url: row.url as string,
+            imageUrl: row.image_url as string,
+            author: row.author as string,
+            authorHandle: row.author_handle as string,
+            tags: normalizeTags(row.tags),
+          }))
+          setItems(mappedItems)
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false)
       }
     }
 
     loadInspirations()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // Filter items: author, handle, post URL, and tags (case-insensitive substring)
@@ -180,7 +194,30 @@ export default function HomePage() {
     <main className="min-h-screen bg-background pb-28">
       {/* Main content */}
       <div className="max-w-[1800px] mx-auto px-6 lg:px-12 py-8">
-        {items.length === 0 ? (
+        {isLoading ? (
+          <div
+            className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-5 [column-fill:_balance]"
+            aria-busy="true"
+            aria-label="Loading inspirations"
+          >
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="mb-5 break-inside-avoid">
+                <Skeleton
+                  className={
+                    [
+                      'h-52 w-full rounded-2xl bg-secondary/50',
+                      'h-72 w-full rounded-2xl bg-secondary/50',
+                      'h-64 w-full rounded-2xl bg-secondary/50',
+                      'h-80 w-full rounded-2xl bg-secondary/50',
+                      'h-56 w-full rounded-2xl bg-secondary/50',
+                      'h-60 w-full rounded-2xl bg-secondary/50',
+                    ][i % 6]
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        ) : items.length === 0 ? (
           <EmptyState
             onAddClick={handleOpenAddDialog}
             showAddAction={isAdmin}
