@@ -94,7 +94,7 @@ export function SearchBar({
         )}
         style={{
           boxShadow:
-            '0 1px 0.6px 1px rgb(255 255 255 / 0.14), inset 0 3px 1px 0 rgb(0 0 0 / 0.41), inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.11)',
+            '0 1px 0.6px 1px rgb(255 255 255 / 0.04), inset 0 3px 1px 0 rgb(0 0 0 / 0.41), inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.11)',
         }}
       >
         <Search className="absolute left-5 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground/70" />
