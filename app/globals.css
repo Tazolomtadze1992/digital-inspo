@@ -17,7 +17,7 @@
   --secondary-foreground: oklch(0.85 0 0);
   --muted: oklch(0.18 0 0);
   --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.22 0 0);
+  --accent: oklch(0.24 0 0);
   --accent-foreground: oklch(0.95 0 0);
   --destructive: oklch(0.55 0.2 25);
   --destructive-foreground: oklch(0.95 0 0);
@@ -37,7 +37,7 @@
   --sidebar-accent: oklch(0.18 0 0);
   --sidebar-accent-foreground: oklch(0.95 0 0);
   --sidebar-border: oklch(0.22 0 0);
-  --sidebar-ring: oklch(0.4 0 0);
+  --sidebar-ring: oklch(0.3 0 0);
 }
 
 .dark {
@@ -123,5 +123,60 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Bottom admin actions: dark sculpted surface (Figma-aligned shadows) */
+@layer components {
+  .admin-sculpt-btn {
+    @apply inline-flex shrink-0 items-center justify-center gap-2 border border-border bg-secondary text-sm text-foreground transition-[box-shadow,background-color] duration-150;
+    box-shadow:
+      0 1px 0.6px 1px rgb(255 255 255 / 0.14),
+      inset 0 3px 1px 0 rgb(0 0 0 / 0.41),
+      inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.11);
+  }
+
+  .admin-sculpt-btn:hover {
+    background-color: color-mix(in oklch, var(--secondary) 90%, oklch(0.96 0 0));
+    box-shadow:
+      0 1px 1px 1px rgb(255 255 255 / 0.12),
+      inset 0 3px 1px 0 rgb(0 0 0 / 0.38),
+      inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.12);
+  }
+
+  .admin-sculpt-btn:active {
+    background-color: color-mix(in oklch, var(--secondary) 88%, oklch(0.94 0 0));
+    box-shadow:
+      inset 0 4px 2px 0 rgb(0 0 0 / 0.48),
+      inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.08);
+  }
+
+  .admin-sculpt-btn:focus-visible {
+    @apply outline-none ring-2 ring-ring/45 ring-offset-2 ring-offset-background;
+  }
+
+  /* Icon-only bottom admin actions (add, sign out): softer depth + icon-forward */
+  .admin-sculpt-btn--quiet {
+    @apply size-12 rounded-full p-0 text-muted-foreground;
+    box-shadow:
+      0 1px 0.5px 1px rgb(255 255 255 / 0.1),
+      inset 0 2px 1px 0 rgb(0 0 0 / 0.36),
+      inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.09);
+  }
+
+  .admin-sculpt-btn--quiet:hover {
+    @apply text-foreground;
+    background-color: color-mix(in oklch, var(--secondary) 90%, oklch(0.96 0 0));
+    box-shadow:
+      0 1px 0.6px 1px rgb(255 255 255 / 0.11),
+      inset 0 2px 1px 0 rgb(0 0 0 / 0.34),
+      inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.1);
+  }
+
+  .admin-sculpt-btn--quiet:active {
+    background-color: color-mix(in oklch, var(--secondary) 88%, oklch(0.94 0 0));
+    box-shadow:
+      inset 0 3px 2px 0 rgb(0 0 0 / 0.44),
+      inset 1px 1px 0.25px 0 rgb(255 255 255 / 0.07);
   }
 }

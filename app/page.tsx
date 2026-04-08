@@ -2,13 +2,14 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { Plus } from 'lucide-react'
+import { LogOut, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { InspirationCard, type InspirationItem } from '@/components/inspiration-card'
 import { AddInspirationDialog } from '@/components/add-inspiration-dialog'
 import { EmptyState } from '@/components/empty-state'
 import { SearchBar } from '@/components/search-bar'
 import { supabase } from '@/lib/supabase'
+import { normalizeTags } from '@/lib/tags'
 
 const ADMIN_USER_ID = '0e4963ee-0ce1-4f08-bf6f-d77583642f18'
 
@@ -66,7 +67,7 @@ export default function HomePage() {
           imageUrl: row.image_url as string,
           author: row.author as string,
           authorHandle: row.author_handle as string,
-          tags: Array.isArray(row.tags) ? row.tags : [],
+          tags: normalizeTags(row.tags),
         }))
         setItems(mappedItems)
       }
@@ -75,30 +76,49 @@ export default function HomePage() {
     loadInspirations()
   }, [])
 
-  // Filter items based on search
+  // Filter items: author, handle, post URL, and tags (case-insensitive substring)
   const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      const matchesSearch =
-        searchQuery === '' ||
-        item.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.authorHandle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    const q = searchQuery.trim().toLowerCase()
+    if (q === '') return items
 
-      return matchesSearch
+    return items.filter((item) => {
+      const tags = Array.isArray(item.tags) ? item.tags : []
+      return (
+        item.author.toLowerCase().includes(q) ||
+        item.authorHandle.toLowerCase().includes(q) ||
+        item.url.toLowerCase().includes(q) ||
+        tags.some((tag) =>
+          String(tag).toLowerCase().includes(q)
+        )
+      )
     })
   }, [items, searchQuery])
 
+  const allTags = useMemo(() => {
+    const set = new Set<string>()
+    for (const item of items) {
+      for (const tag of item.tags ?? []) {
+        const t = String(tag).trim().toLowerCase()
+        if (t) set.add(t)
+      }
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b))
+  }, [items])
+
   const handleAddItem = async (newItem: Omit<InspirationItem, 'id'>) => {
+    const tags = normalizeTags(newItem.tags)
+    const payload = {
+      url: newItem.url,
+      image_url: newItem.imageUrl,
+      author: newItem.author,
+      author_handle: newItem.authorHandle,
+      tags,
+    }
+
     if (editItem) {
       const { error } = await supabase
         .from('inspirations')
-        .update({
-          url: newItem.url,
-          image_url: newItem.imageUrl,
-          author: newItem.author,
-          author_handle: newItem.authorHandle,
-          tags: newItem.tags,
-        })
+        .update(payload)
         .eq('id', editItem.id)
 
       if (error) {
@@ -108,7 +128,9 @@ export default function HomePage() {
 
       setItems((prev) =>
         prev.map((item) =>
-          item.id === editItem.id ? { ...newItem, id: editItem.id } : item
+          item.id === editItem.id
+            ? { ...newItem, id: editItem.id, tags }
+            : item
         )
       )
       setEditItem(null)
@@ -116,11 +138,7 @@ export default function HomePage() {
       const id = Date.now().toString()
       const { error } = await supabase.from('inspirations').insert({
         id,
-        url: newItem.url,
-        image_url: newItem.imageUrl,
-        author: newItem.author,
-        author_handle: newItem.authorHandle,
-        tags: newItem.tags,
+        ...payload,
       })
 
       if (error) {
@@ -131,6 +149,7 @@ export default function HomePage() {
       const item: InspirationItem = {
         ...newItem,
         id,
+        tags,
       }
       setItems((prev) => [item, ...prev])
     }
@@ -159,39 +178,6 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-background pb-28">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="max-w-[1800px] mx-auto px-6 lg:px-12 py-5">
-          <div className="flex items-center justify-between gap-6">
-            {/* Logo / Title */}
-            <div className="flex items-center gap-3">
-              <h1 className="text-xl font-semibold tracking-tight">Digital Inspo</h1>
-            </div>
-
-            {isAdmin && (
-              <div className="flex flex-shrink-0 items-center gap-2">
-                <Button
-                  onClick={handleOpenAddDialog}
-                  size="default"
-                  className="rounded-full gap-2 px-5"
-                >
-                  <Plus className="size-4" />
-                  <span className="hidden sm:inline">Add new</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => supabase.auth.signOut()}
-                >
-                  Sign out
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
       {/* Main content */}
       <div className="max-w-[1800px] mx-auto px-6 lg:px-12 py-8">
         {items.length === 0 ? (
@@ -233,13 +219,41 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Floating Search Bar */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-xl px-6">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          className="shadow-lg shadow-black/20"
-        />
+      {/* Search: viewport-centered; + sits to its right (gap-4); sign-out stays right-anchored */}
+      <div className="fixed bottom-6 left-0 right-0 z-50 min-h-12 overflow-visible pointer-events-none">
+        <div className="pointer-events-auto absolute left-1/2 top-1/2 w-full max-w-xl -translate-x-1/2 -translate-y-1/2 px-6">
+          <div className="relative w-full">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              suggestedTags={allTags}
+            />
+            {isAdmin ? (
+              <button
+                type="button"
+                onClick={handleOpenAddDialog}
+                className="admin-sculpt-btn admin-sculpt-btn--quiet absolute left-full top-1/2 ml-4 -translate-y-1/2"
+                aria-label="Add inspiration"
+                title="Add inspiration"
+              >
+                <Plus className="size-4" strokeWidth={1.75} aria-hidden />
+              </button>
+            ) : null}
+          </div>
+        </div>
+        {isAdmin ? (
+          <div className="pointer-events-auto absolute right-6 top-1/2 -translate-y-1/2 sm:right-8 lg:right-12">
+            <button
+              type="button"
+              onClick={() => supabase.auth.signOut()}
+              className="admin-sculpt-btn admin-sculpt-btn--quiet"
+              aria-label="Sign out"
+              title="Sign out"
+            >
+              <LogOut className="size-4" strokeWidth={1.75} aria-hidden />
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {/* Add/Edit Dialog */}

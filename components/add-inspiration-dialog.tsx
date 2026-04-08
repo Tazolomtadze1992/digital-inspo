@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
+import { normalizeTags } from '@/lib/tags'
 import type { InspirationItem } from './inspiration-card'
 
 interface AddInspirationDialogProps {
@@ -60,7 +61,7 @@ export function AddInspirationDialog({
       setSelectedFile(null)
       setAuthor(editItem.author)
       setAuthorHandle(editItem.authorHandle)
-      setTags(editItem.tags)
+      setTags(normalizeTags(editItem.tags))
     } else {
       resetForm()
     }
@@ -138,12 +139,17 @@ export function AddInspirationDialog({
       }
     }
 
+    const tagsForSave = normalizeTags([
+      ...tags,
+      ...(tagInput.trim() ? [tagInput] : []),
+    ])
+
     onSave({
       url,
       imageUrl,
       author,
       authorHandle: authorHandle || author.toLowerCase().replace(/\s+/g, ''),
-      tags,
+      tags: tagsForSave,
     })
 
     resetForm()
