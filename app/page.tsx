@@ -2,8 +2,14 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { LogOut, Plus } from 'lucide-react'
+import { LogOut, MoreHorizontal, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { InspirationCard, type InspirationItem } from '@/components/inspiration-card'
 import { AddInspirationDialog } from '@/components/add-inspiration-dialog'
 import { EmptyState } from '@/components/empty-state'
@@ -227,7 +233,44 @@ export default function HomePage() {
   }, [isAdmin, isAddDialogOpen, handleOpenAddDialog])
 
   return (
-    <main className="min-h-screen bg-background pb-28">
+    <main
+      className={
+        isAdmin
+          ? 'min-h-screen bg-background pb-28 max-md:pt-14'
+          : 'min-h-screen bg-background pb-28'
+      }
+    >
+      {/* Mobile admin: top-right menu (desktop keeps bottom + / logout) */}
+      {isAdmin ? (
+        <div className="pointer-events-auto fixed right-6 top-[max(1.5rem,env(safe-area-inset-top))] z-50 md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="admin-sculpt-btn admin-sculpt-btn--quiet"
+                aria-label="Admin menu"
+                title="Admin menu"
+              >
+                <MoreHorizontal className="size-4" strokeWidth={1.75} aria-hidden />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[160px]">
+              <DropdownMenuItem onClick={handleOpenAddDialog}>
+                <Plus className="size-3.5" />
+                Add inspiration
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => supabase.auth.signOut()}
+              >
+                <LogOut className="size-3.5" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ) : null}
+
       {/* Main content */}
       <div className="max-w-[1800px] mx-auto px-6 lg:px-12 py-8">
         {isLoading ? (
@@ -305,7 +348,7 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={handleOpenAddDialog}
-                className="admin-sculpt-btn admin-sculpt-btn--quiet absolute left-full top-1/2 ml-4 -translate-y-1/2"
+                className="admin-sculpt-btn admin-sculpt-btn--quiet absolute left-full top-1/2 ml-4 hidden -translate-y-1/2 md:flex"
                 aria-label="Add inspiration"
                 title="Add inspiration"
               >
@@ -315,7 +358,7 @@ export default function HomePage() {
           </div>
         </div>
         {isAdmin ? (
-          <div className="pointer-events-auto absolute right-6 top-1/2 -translate-y-1/2 sm:right-8 lg:right-12">
+          <div className="pointer-events-auto absolute right-6 top-1/2 hidden -translate-y-1/2 sm:right-8 md:block lg:right-12">
             <button
               type="button"
               onClick={() => supabase.auth.signOut()}
