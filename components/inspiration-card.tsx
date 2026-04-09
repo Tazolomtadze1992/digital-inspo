@@ -151,7 +151,7 @@ export function InspirationCard({
             isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           )}
         >
-          <div className="flex items-end gap-1">
+          <div className="flex items-end gap-2">
             <Avatar className="size-6 shrink-0 ring-1 ring-white/15">
               {item.authorAvatarUrl ? (
                 <AvatarImage
@@ -164,9 +164,9 @@ export function InspirationCard({
                 {(item.author.trim().charAt(0) || '?').toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium text-white">{item.author}</p>
-              <p className="truncate text-xs text-white/60">@{item.authorHandle}</p>
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <p className="truncate text-[11px] leading-none font-medium text-white">{item.author}</p>
+              <p className="truncate text-[11px] leading-none text-white/60">@{item.authorHandle}</p>
             </div>
           </div>
         </div>

@@ -1,9 +1,37 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Search, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+
+const tagSuggestionTransition = {
+  type: 'spring' as const,
+  duration: 0.2,
+  bounce: 0,
+}
+
+const tagPillMotion = {
+  initial: {
+    opacity: 0,
+    /** Emerge from below (search-bar side); mirrors prior top offset magnitude. */
+    y: 'calc(100% + 4px)',
+    filter: 'blur(4px)',
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+  },
+  exit: {
+    opacity: 0,
+    /** Recede toward the bar / downward, subtle match to previous 12px exit. */
+    y: '12px',
+    filter: 'blur(4px)',
+  },
+  transition: tagSuggestionTransition,
+}
 
 interface SearchBarProps {
   value: string
@@ -60,33 +88,42 @@ export function SearchBar({
 
   return (
     <div ref={rootRef} className={cn('relative w-full max-w-2xl', className)}>
-      {showPanel ? (
+      <div className="pointer-events-none absolute bottom-full left-0 right-0 z-[60] mb-2 overflow-visible px-3 py-1.5 flex justify-center">
         <div
-          className="absolute bottom-full left-0 right-0 z-[60] mb-2 px-3 py-1.5"
+          className="pointer-events-auto flex max-h-[min(40vh,14rem)] flex-wrap justify-center gap-2 overflow-visible"
           role="listbox"
           aria-label="Tag suggestions"
         >
-          <div className="flex max-h-[min(40vh,14rem)] flex-wrap gap-2 overflow-y-auto">
-            {suggestedTags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="outline"
-                asChild
-                className="cursor-pointer rounded-full border border-accent bg-secondary px-4 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                <button
-                  type="button"
-                  role="option"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => selectTag(tag)}
+          <AnimatePresence initial={false}>
+            {showPanel &&
+              suggestedTags.map((tag) => (
+                <motion.div
+                  key={tag}
+                  initial={tagPillMotion.initial}
+                  animate={tagPillMotion.animate}
+                  exit={tagPillMotion.exit}
+                  transition={tagPillMotion.transition}
+                  className="inline-flex"
                 >
-                  {tag}
-                </button>
-              </Badge>
-            ))}
-          </div>
+                  <Badge
+                    variant="outline"
+                    asChild
+                    className="cursor-pointer rounded-full border border-accent bg-secondary px-4 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <button
+                      type="button"
+                      role="option"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => selectTag(tag)}
+                    >
+                      {tag}
+                    </button>
+                  </Badge>
+                </motion.div>
+              ))}
+          </AnimatePresence>
         </div>
-      ) : null}
+      </div>
 
       <div
         className={cn(
