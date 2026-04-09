@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { LogOut, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -69,14 +69,24 @@ export default function HomePage() {
         }
 
         if (data) {
-          const mappedItems: InspirationItem[] = data.map((row) => ({
-            id: String(row.id),
-            url: row.url as string,
-            imageUrl: row.image_url as string,
-            author: row.author as string,
-            authorHandle: row.author_handle as string,
-            tags: normalizeTags(row.tags),
-          }))
+          const mappedItems: InspirationItem[] = data.map((row) => {
+            const rawAvatar = row.author_avatar_url
+            const authorAvatarUrl =
+              typeof rawAvatar === 'string' && rawAvatar.trim() !== ''
+                ? rawAvatar.trim()
+                : undefined
+            return {
+              id: String(row.id),
+              url: row.url as string,
+              imageUrl: row.image_url as string,
+              mediaType:
+                row.media_type === 'video' ? 'video' : 'image',
+              author: row.author as string,
+              authorHandle: row.author_handle as string,
+              authorAvatarUrl,
+              tags: normalizeTags(row.tags),
+            }
+          })
           setItems(mappedItems)
         }
       } finally {
@@ -124,8 +134,10 @@ export default function HomePage() {
     const payload = {
       url: newItem.url,
       image_url: newItem.imageUrl,
+      media_type: newItem.mediaType,
       author: newItem.author,
       author_handle: newItem.authorHandle,
+      author_avatar_url: newItem.authorAvatarUrl?.trim() || null,
       tags,
     }
 
@@ -185,10 +197,34 @@ export default function HomePage() {
     setItems((prev) => prev.filter((item) => item.id !== id))
   }
 
-  const handleOpenAddDialog = () => {
+  const handleOpenAddDialog = useCallback(() => {
     setEditItem(null)
     setIsAddDialogOpen(true)
-  }
+  }, [])
+
+  useEffect(() => {
+    if (!isAdmin) return
+
+    const isEditableTarget = (target: EventTarget | null) => {
+      const el = target instanceof HTMLElement ? target : null
+      if (!el) return false
+      if (el.closest('input, textarea, select')) return true
+      return el.isContentEditable
+    }
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'a' && e.key !== 'A') return
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      if (e.repeat) return
+      if (isAddDialogOpen) return
+      if (isEditableTarget(e.target)) return
+      e.preventDefault()
+      handleOpenAddDialog()
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isAdmin, isAddDialogOpen, handleOpenAddDialog])
 
   return (
     <main className="min-h-screen bg-background pb-28">
@@ -302,6 +338,7 @@ export default function HomePage() {
         }}
         onSave={handleAddItem}
         editItem={editItem}
+        suggestedTags={allTags}
       />
     </main>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import {
@@ -9,14 +9,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 
 export interface InspirationItem {
   id: string
   url: string
   imageUrl: string
+  mediaType: 'image' | 'video'
   author: string
   authorHandle: string
+  /** Optional profile image URL (e.g. X/Twitter avatar). */
+  authorAvatarUrl?: string
   tags: string[]
 }
 
@@ -36,7 +40,11 @@ export function InspirationCard({
 }: InspirationCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [imageLoaded, setImageLoaded] = useState(false)
+  const [mediaLoaded, setMediaLoaded] = useState(false)
+
+  useEffect(() => {
+    setMediaLoaded(false)
+  }, [item.id, item.imageUrl, item.mediaType])
 
   const isActive = isHovered || isMenuOpen
 
@@ -58,23 +66,40 @@ export function InspirationCard({
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
-      {/* Image container with natural aspect ratio */}
+      {/* Media container with natural aspect ratio */}
       <div className="relative w-full">
-        <Image
-          src={item.imageUrl}
-          alt={`Inspiration by ${item.author}`}
-          width={400}
-          height={500}
-          className={cn(
-            'w-full h-auto object-cover transition-all duration-500',
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          )}
-          onLoad={() => setImageLoaded(true)}
-          unoptimized
-        />
-        
+        {item.mediaType === 'video' ? (
+          <video
+            src={item.imageUrl}
+            className={cn(
+              'block w-full min-h-[12rem] h-auto object-cover transition-all duration-500 bg-black',
+              mediaLoaded ? 'opacity-100' : 'opacity-0'
+            )}
+            muted
+            loop
+            playsInline
+            autoPlay
+            onLoadedData={() => setMediaLoaded(true)}
+            onError={() => setMediaLoaded(true)}
+            aria-label={`Inspiration by ${item.author}`}
+          />
+        ) : (
+          <Image
+            src={item.imageUrl}
+            alt={`Inspiration by ${item.author}`}
+            width={400}
+            height={500}
+            className={cn(
+              'w-full h-auto object-cover transition-all duration-500',
+              mediaLoaded ? 'opacity-100' : 'opacity-0'
+            )}
+            onLoad={() => setMediaLoaded(true)}
+            unoptimized
+          />
+        )}
+
         {/* Loading skeleton */}
-        {!imageLoaded && (
+        {!mediaLoaded && (
           <div className="absolute inset-0 bg-secondary animate-pulse" />
         )}
 
@@ -126,10 +151,23 @@ export function InspirationCard({
             isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
           )}
         >
-          {/* Author info */}
-          <div>
-            <p className="text-sm font-medium text-white">{item.author}</p>
-            <p className="text-xs text-white/60">@{item.authorHandle}</p>
+          <div className="flex items-end gap-1">
+            <Avatar className="size-6 shrink-0 ring-1 ring-white/15">
+              {item.authorAvatarUrl ? (
+                <AvatarImage
+                  src={item.authorAvatarUrl}
+                  alt=""
+                  className="object-cover"
+                />
+              ) : null}
+              <AvatarFallback className="bg-white/15 text-xs font-medium text-white/90">
+                {(item.author.trim().charAt(0) || '?').toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-medium text-white">{item.author}</p>
+              <p className="truncate text-xs text-white/60">@{item.authorHandle}</p>
+            </div>
           </div>
         </div>
       </div>
