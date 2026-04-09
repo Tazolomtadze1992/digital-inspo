@@ -116,8 +116,10 @@ export function InspirationCard({
           <div
             data-dropdown
             className={cn(
-              'absolute top-3 right-3 transition-all duration-300',
-              isActive ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
+              'absolute top-3 right-3 transition-all duration-200 ease-out',
+              isActive
+                ? 'opacity-100 scale-100'
+                : 'opacity-0 scale-[0.93]'
             )}
             onClick={(e) => e.stopPropagation()}
           >

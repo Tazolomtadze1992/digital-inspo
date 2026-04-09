@@ -254,7 +254,10 @@ export default function HomePage() {
                 <MoreHorizontal className="size-4" strokeWidth={1.75} aria-hidden />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-[160px]">
+            <DropdownMenuContent
+              align="end"
+              className="min-w-[160px] border border-muted-foreground/30"
+            >
               <DropdownMenuItem onClick={handleOpenAddDialog}>
                 <Plus className="size-3.5" />
                 Add inspiration

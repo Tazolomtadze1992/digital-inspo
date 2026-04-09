@@ -273,24 +273,23 @@ export function AddInspirationDialog({
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* URL Input */}
           <div className="space-y-2">
-            <Label htmlFor="url" className="text-sm text-muted-foreground">
+            <Label htmlFor="url" className="text-xs text-muted-foreground">
               X/Twitter Post URL
             </Label>
             <div className="relative">
               <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
                 id="url"
-                placeholder="https://x.com/username/status/..."
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                className="pl-10 bg-input border-border rounded-full"
+                className="pl-10 bg-input border-muted-foreground/10 rounded-full"
               />
             </div>
           </div>
 
           {/* Image Upload */}
           <div className="space-y-2">
-            <Label className="text-sm text-muted-foreground">Thumbnail</Label>
+            <Label className="text-xs text-muted-foreground">Thumbnail</Label>
             <div
               className={cn(
                 'relative border-2 border-dashed rounded-xl transition-colors cursor-pointer',
@@ -365,27 +364,25 @@ export function AddInspirationDialog({
           {/* Author Fields */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="author" className="text-sm text-muted-foreground">
+              <Label htmlFor="author" className="text-xs text-muted-foreground">
                 Author Name
               </Label>
               <Input
                 id="author"
-                placeholder="John Doe"
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
-                className="bg-input border-border rounded-full"
+                className="bg-input border-muted-foreground/10 rounded-full"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="handle" className="text-sm text-muted-foreground">
+              <Label htmlFor="handle" className="text-xs text-muted-foreground">
                 Handle (optional)
               </Label>
               <Input
                 id="handle"
-                placeholder="@johndoe"
                 value={authorHandle}
                 onChange={(e) => setAuthorHandle(e.target.value.replace('@', ''))}
-                className="bg-input border-border rounded-full"
+                className="bg-input border-muted-foreground/10 rounded-full"
               />
             </div>
           </div>
@@ -393,25 +390,24 @@ export function AddInspirationDialog({
           <div className="space-y-2">
             <Label
               htmlFor="author-avatar-url"
-              className="text-sm text-muted-foreground"
+              className="text-xs text-muted-foreground"
             >
               Author avatar URL{' '}
-              <span className="text-muted-foreground/70">(optional)</span>
+              <span className="text-xs text-muted-foreground/70">(optional)</span>
             </Label>
             <Input
               id="author-avatar-url"
               type="url"
               inputMode="url"
-              placeholder="https://pbs.twimg.com/profile_images/…"
               value={authorAvatarUrl}
               onChange={(e) => setAuthorAvatarUrl(e.target.value)}
-              className="bg-input border-border rounded-full"
+              className="bg-input border-muted-foreground/10 rounded-full"
             />
           </div>
 
           {/* Tags — inline chips + combobox suggestions */}
           <div className="space-y-2">
-            <Label htmlFor="tags-input" className="text-sm text-muted-foreground">
+            <Label htmlFor="tags-input" className="text-xs text-muted-foreground">
               Tags
             </Label>
             <Popover
@@ -425,7 +421,7 @@ export function AddInspirationDialog({
                 <div className="w-full">
                   <div
                     className={cn(
-                      'flex min-h-10 w-full flex-wrap items-center gap-1.5 rounded-full border border-border bg-input px-3 py-1.5 text-sm shadow-xs transition-[color,box-shadow] outline-none',
+                      'flex min-h-10 w-full flex-wrap items-center gap-1.5 rounded-full border border-muted-foreground/10 bg-input px-3 py-1.5 text-sm shadow-xs transition-[color,box-shadow] outline-none',
                       'focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]'
                     )}
                     onClick={() => tagInputRef.current?.focus()}
@@ -455,7 +451,6 @@ export function AddInspirationDialog({
                       id="tags-input"
                       type="text"
                       autoComplete="off"
-                      placeholder={tags.length ? 'Add another tag…' : 'Type to search or add tags'}
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={handleTagInputKeyDown}
@@ -468,7 +463,7 @@ export function AddInspirationDialog({
               <PopoverContent
                 align="start"
                 sideOffset={4}
-                className="z-[60] w-[var(--radix-popover-anchor-width)] border border-muted-foreground/30 p-2"
+                className="z-[60] w-[var(--radix-popover-anchor-width)] border border-muted-foreground/10 p-2"
                 onOpenAutoFocus={(e) => e.preventDefault()}
               >
                 <Command shouldFilter={false} className="max-h-[240px]">
