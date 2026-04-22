@@ -2,14 +2,8 @@
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { LogOut, MoreHorizontal, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { AdminAddInspirationButton } from '@/components/admin-add-inspiration-button'
 import { InspirationCard, type InspirationItem } from '@/components/inspiration-card'
 import { AddInspirationDialog } from '@/components/add-inspiration-dialog'
 import { EmptyState } from '@/components/empty-state'
@@ -254,37 +248,10 @@ export default function HomePage() {
           : 'min-h-screen bg-background pb-28'
       }
     >
-      {/* Mobile admin: top-right menu (desktop keeps bottom + / logout) */}
+      {/* Mobile admin: top-right + (same control as beside search on md+) */}
       {isAdmin ? (
         <div className="pointer-events-auto fixed right-6 top-[max(1.5rem,env(safe-area-inset-top))] z-50 md:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="admin-sculpt-btn admin-sculpt-btn--quiet"
-                aria-label="Admin menu"
-                title="Admin menu"
-              >
-                <MoreHorizontal className="size-4" strokeWidth={1.75} aria-hidden />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="min-w-[160px] border border-muted-foreground/30"
-            >
-              <DropdownMenuItem onClick={handleOpenAddDialog}>
-                <Plus className="size-3.5" />
-                Add inspiration
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => supabase.auth.signOut()}
-              >
-                <LogOut className="size-3.5" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AdminAddInspirationButton onClick={handleOpenAddDialog} />
         </div>
       ) : null}
 
@@ -355,7 +322,7 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Search: viewport-centered; + sits to its right (gap-4); sign-out stays right-anchored */}
+      {/* Search: viewport-centered; + sits to its right on md+ */}
       <div className="fixed bottom-6 left-0 right-0 z-50 min-h-12 overflow-visible pointer-events-none">
         <div className="pointer-events-auto absolute left-1/2 top-1/2 w-full max-w-xl -translate-x-1/2 -translate-y-1/2 px-6">
           <div className="relative w-full">
@@ -365,31 +332,13 @@ export default function HomePage() {
               suggestedTags={allTags}
             />
             {isAdmin ? (
-              <button
-                type="button"
+              <AdminAddInspirationButton
                 onClick={handleOpenAddDialog}
-                className="admin-sculpt-btn admin-sculpt-btn--quiet absolute left-full top-1/2 ml-2 hidden -translate-y-1/2 md:flex"
-                aria-label="Add inspiration"
-                title="Add inspiration"
-              >
-                <Plus className="size-4" strokeWidth={1.75} aria-hidden />
-              </button>
+                className="absolute left-full top-1/2 ml-2 hidden -translate-y-1/2 md:flex"
+              />
             ) : null}
           </div>
         </div>
-        {isAdmin ? (
-          <div className="pointer-events-auto absolute right-6 top-1/2 hidden -translate-y-1/2 sm:right-8 md:block lg:right-12">
-            <button
-              type="button"
-              onClick={() => supabase.auth.signOut()}
-              className="admin-sculpt-btn admin-sculpt-btn--quiet"
-              aria-label="Sign out"
-              title="Sign out"
-            >
-              <LogOut className="size-4" strokeWidth={1.75} aria-hidden />
-            </button>
-          </div>
-        ) : null}
       </div>
 
       {/* Add/Edit Dialog */}

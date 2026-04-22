@@ -164,7 +164,7 @@
     @apply outline-none ring-2 ring-ring/45 ring-offset-2 ring-offset-background;
   }
 
-  /* Icon-only bottom admin actions (add, sign out): softer depth + icon-forward */
+  /* Icon-only admin sculpt add buttons: softer depth + icon-forward */
   .admin-sculpt-btn--quiet {
     @apply size-12 rounded-full p-0 text-muted-foreground;
     box-shadow:
