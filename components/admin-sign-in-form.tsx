@@ -24,8 +24,8 @@ export function AdminSignInForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex w-full flex-col items-stretch gap-2 sm:max-w-none sm:items-end">
-      <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-end sm:justify-end">
+    <form onSubmit={handleSubmit} className="flex w-full flex-col items-center gap-2">
+      <div className="flex w-[280px] flex-col gap-4">
         <Input
           type="email"
           name="email"
@@ -33,7 +33,7 @@ export function AdminSignInForm() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="h-9 sm:max-w-[180px]"
+          className="h-9 w-full rounded-full bg-input border-muted-foreground/10"
           required
         />
         <Input
@@ -43,15 +43,15 @@ export function AdminSignInForm() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="h-9 sm:max-w-[140px]"
+          className="h-9 w-full rounded-full bg-input border-muted-foreground/10"
           required
         />
-        <Button type="submit" size="sm" disabled={loading} className="shrink-0">
+        <Button type="submit" size="sm" disabled={loading} className="w-full">
           {loading ? '…' : 'Sign in'}
         </Button>
       </div>
       {error ? (
-        <p className="text-xs text-destructive sm:text-right">{error}</p>
+        <p className="text-xs text-destructive">{error}</p>
       ) : null}
     </form>
   )

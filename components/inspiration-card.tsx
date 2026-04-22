@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useSyncExternalStore } from 'react'
 import Image from 'next/image'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import {
@@ -11,6 +11,16 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
+
+function subscribeFinePointerHover(cb: () => void) {
+  const mq = window.matchMedia('(hover: hover) and (pointer: fine)')
+  mq.addEventListener('change', cb)
+  return () => mq.removeEventListener('change', cb)
+}
+
+function getFinePointerHover() {
+  return window.matchMedia('(hover: hover) and (pointer: fine)').matches
+}
 
 export interface InspirationItem {
   id: string
@@ -38,6 +48,11 @@ export function InspirationCard({
   onDelete,
   showActions = true,
 }: InspirationCardProps) {
+  const finePointerHover = useSyncExternalStore(
+    subscribeFinePointerHover,
+    getFinePointerHover,
+    () => true,
+  )
   const [isHovered, setIsHovered] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [mediaLoaded, setMediaLoaded] = useState(false)
@@ -46,7 +61,7 @@ export function InspirationCard({
     setMediaLoaded(false)
   }, [item.id, item.imageUrl, item.mediaType])
 
-  const isActive = isHovered || isMenuOpen
+  const isActive = isMenuOpen || (finePointerHover && isHovered)
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't open link if clicking on the dropdown
@@ -59,7 +74,7 @@ export function InspirationCard({
   return (
     <div
       className={cn(
-        'group relative cursor-pointer overflow-hidden rounded-2xl bg-card transition-all duration-300 ease-out',
+        'group relative cursor-pointer overflow-hidden rounded-2xl bg-card transition-[box-shadow,opacity] duration-300 ease-out',
         isActive && 'ring-1 ring-border/50 shadow-2xl shadow-black/30'
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -72,7 +87,7 @@ export function InspirationCard({
           <video
             src={item.imageUrl}
             className={cn(
-              'block w-full min-h-[12rem] h-auto object-cover transition-all duration-500 bg-black',
+              'block w-full min-h-[12rem] h-auto object-cover transition-opacity duration-500 ease-out bg-black',
               mediaLoaded ? 'opacity-100' : 'opacity-0'
             )}
             muted
@@ -90,7 +105,7 @@ export function InspirationCard({
             width={400}
             height={500}
             className={cn(
-              'w-full h-auto object-cover transition-all duration-500',
+              'w-full h-auto object-cover transition-opacity duration-500 ease-out',
               mediaLoaded ? 'opacity-100' : 'opacity-0'
             )}
             onLoad={() => setMediaLoaded(true)}
@@ -106,7 +121,7 @@ export function InspirationCard({
         {/* Hover overlay with metadata */}
         <div
           className={cn(
-            'absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent transition-opacity duration-300',
+            'absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent transition-opacity duration-300 ease-out',
             isActive ? 'opacity-100' : 'opacity-0'
           )}
         />
@@ -116,7 +131,7 @@ export function InspirationCard({
           <div
             data-dropdown
             className={cn(
-              'absolute top-3 right-3 transition-all duration-200 ease-out',
+              'absolute top-3 right-3 transition-[opacity,transform] duration-200 ease-out',
               isActive
                 ? 'opacity-100 scale-100'
                 : 'opacity-0 scale-[0.93]'
@@ -125,11 +140,11 @@ export function InspirationCard({
           >
             <DropdownMenu onOpenChange={setIsMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors">
+                <button className="p-2 rounded-full bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors duration-150 ease-in-out">
                   <MoreHorizontal className="size-3.5 text-white/80" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-[140px]">
+              <DropdownMenuContent align="end" className="min-w-[140px] border border-muted-foreground/30">
                 <DropdownMenuItem onClick={() => onEdit(item)}>
                   <Pencil className="size-3.5" />
                   Edit
@@ -138,7 +153,7 @@ export function InspirationCard({
                   onClick={() => onDelete(item.id)}
                   className="text-destructive focus:text-destructive"
                 >
-                  <Trash2 className="size-3.5" />
+                  <Trash2 className="size-3.5 text-destructive" />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -149,8 +164,8 @@ export function InspirationCard({
         {/* Bottom metadata */}
         <div
           className={cn(
-            'absolute bottom-0 left-0 right-0 p-4 transition-all duration-300',
-            isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+            'absolute bottom-0 left-0 right-0 p-4 transition-opacity duration-300 ease-out',
+            isActive ? 'opacity-100' : 'opacity-0'
           )}
         >
           <div className="flex items-end gap-2">

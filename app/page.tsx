@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { LogOut, MoreHorizontal, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -39,8 +39,22 @@ export default function HomePage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [editItem, setEditItem] = useState<InspirationItem | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [gridFlashOpacity, setGridFlashOpacity] = useState(1)
+  const skipInitialSearchFlash = useRef(true)
 
   const isAdmin = session?.user?.id === ADMIN_USER_ID
+
+  useEffect(() => {
+    if (skipInitialSearchFlash.current) {
+      skipInitialSearchFlash.current = false
+      return
+    }
+    setGridFlashOpacity(0.92)
+    const id = window.requestAnimationFrame(() => {
+      setGridFlashOpacity(1)
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [searchQuery])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: s } }) => {
@@ -308,7 +322,10 @@ export default function HomePage() {
           <>
             {/* Masonry Grid */}
             {filteredItems.length > 0 ? (
-              <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-5 [column-fill:_balance]">
+              <div
+                className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 2xl:columns-5 gap-5 [column-fill:_balance] transition-opacity duration-150 ease-out"
+                style={{ opacity: gridFlashOpacity }}
+              >
                 {filteredItems.map((item) => (
                   <div key={item.id} className="mb-5 break-inside-avoid">
                     <InspirationCard
@@ -351,7 +368,7 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={handleOpenAddDialog}
-                className="admin-sculpt-btn admin-sculpt-btn--quiet absolute left-full top-1/2 ml-4 hidden -translate-y-1/2 md:flex"
+                className="admin-sculpt-btn admin-sculpt-btn--quiet absolute left-full top-1/2 ml-2 hidden -translate-y-1/2 md:flex"
                 aria-label="Add inspiration"
                 title="Add inspiration"
               >

@@ -124,12 +124,21 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none;
+      transition: none;
+    }
+  }
 }
 
 /* Bottom admin actions: dark sculpted surface (Figma-aligned shadows) */
 @layer components {
   .admin-sculpt-btn {
-    @apply inline-flex shrink-0 items-center justify-center gap-2 border border-border bg-secondary text-sm text-foreground transition-[box-shadow,background-color] duration-150;
+    @apply inline-flex shrink-0 items-center justify-center gap-2 border border-border bg-secondary text-sm text-foreground transition-[box-shadow,background-color] duration-150 ease-in-out;
     box-shadow:
       0 1px 0.6px 1px rgb(255 255 255 / 0.14),
       inset 0 3px 1px 0 rgb(0 0 0 / 0.41),

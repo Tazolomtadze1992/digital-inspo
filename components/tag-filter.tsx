@@ -16,7 +16,7 @@ export function TagFilter({ tags, selectedTag, onSelectTag }: TagFilterProps) {
       <button
         onClick={() => onSelectTag(null)}
         className={cn(
-          'px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200',
+          'px-4 py-1.5 rounded-full text-sm font-medium transition-[color,background-color,opacity] duration-200 ease-in-out',
           selectedTag === null
             ? 'bg-foreground text-background'
             : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80'
@@ -29,7 +29,7 @@ export function TagFilter({ tags, selectedTag, onSelectTag }: TagFilterProps) {
           key={tag}
           onClick={() => onSelectTag(selectedTag === tag ? null : tag)}
           className={cn(
-            'px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 capitalize',
+            'px-4 py-1.5 rounded-full text-sm font-medium transition-[color,background-color,opacity] duration-200 ease-in-out capitalize',
             selectedTag === tag
               ? 'bg-foreground text-background'
               : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80'

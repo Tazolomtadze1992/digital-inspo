@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Search, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -15,20 +15,15 @@ const tagSuggestionTransition = {
 const tagPillMotion = {
   initial: {
     opacity: 0,
-    /** Emerge from below (search-bar side); mirrors prior top offset magnitude. */
     y: 'calc(100% + 4px)',
-    filter: 'blur(4px)',
   },
   animate: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
   },
   exit: {
     opacity: 0,
-    /** Recede toward the bar / downward, subtle match to previous 12px exit. */
     y: '12px',
-    filter: 'blur(4px)',
   },
   transition: tagSuggestionTransition,
 }
@@ -47,6 +42,7 @@ export function SearchBar({
   suggestedTags = [],
   className,
 }: SearchBarProps) {
+  const reduceMotion = useReducedMotion()
   const rootRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [panelOpen, setPanelOpen] = useState(false)
@@ -99,16 +95,18 @@ export function SearchBar({
               suggestedTags.map((tag) => (
                 <motion.div
                   key={tag}
-                  initial={tagPillMotion.initial}
+                  initial={reduceMotion ? false : tagPillMotion.initial}
                   animate={tagPillMotion.animate}
-                  exit={tagPillMotion.exit}
-                  transition={tagPillMotion.transition}
+                  exit={reduceMotion ? { opacity: 0 } : tagPillMotion.exit}
+                  transition={
+                    reduceMotion ? { duration: 0 } : tagPillMotion.transition
+                  }
                   className="inline-flex"
                 >
                   <Badge
                     variant="outline"
                     asChild
-                    className="cursor-pointer rounded-full border border-accent bg-secondary px-4 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    className="cursor-pointer rounded-full border border-accent bg-secondary px-4 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-150 ease-in-out hover:text-foreground"
                   >
                     <button
                       type="button"
@@ -154,7 +152,7 @@ export function SearchBar({
           className={cn(
             'h-12 w-full rounded-full border-0 bg-transparent pl-12 pr-12',
             'text-foreground placeholder:text-muted-foreground/50',
-            'transition-all duration-200 focus:outline-none focus:ring-0'
+            'transition-[color,opacity] duration-200 ease-in-out focus:outline-none focus:ring-0'
           )}
         />
         {value ? (
@@ -163,7 +161,7 @@ export function SearchBar({
             onClick={() => onChange('')}
             className="group absolute right-5 top-1/2 z-10 -translate-y-1/2 rounded-full p-1.5"
           >
-            <X className="size-4 text-muted-foreground transition-colors group-hover:text-foreground" />
+            <X className="size-4 text-muted-foreground transition-colors duration-150 ease-in-out group-hover:text-foreground" />
           </button>
         ) : null}
       </div>
